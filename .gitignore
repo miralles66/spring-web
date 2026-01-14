@@ -1,0 +1,283 @@
+# Spring Boot specific
+*.war
+*.ear
+*.jar
+
+# Gradle specific
+.gradle
+build/
+gradlew
+gradlew.bat
+!gradle/wrapper/gradle-wrapper.jar
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.ipr
+*.iws
+out/
+!**/src/main/**/out/
+!**/src/test/**/out/
+
+# Eclipse
+.bin/
+.gen/
+.metadata/
+.recommenders/
+.springBeans
+.sts4-cache/
+target/
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+bin/
+!**/src/main/**/bin/
+!**/src/test/**/bin/
+
+# VSCode
+.vscode/
+.history/
+
+# Java
+*.class
+*.log
+
+# Database
+*.db
+*.sqlite
+*.sqlite-journal
+*.db-journal
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Logs
+logs/
+*.log
+
+# Runtime data
+tmp/
+*.tmp
+*.swp
+
+# Dependency directories
+dependencies/
+lib/
+
+# Maven
+target/
+pom.xml.versionsBackup
+
+# Node.js
+node_modules/
+
+# Docker
+docker-compose.override.yml
+
+# OS specific
+.DS_Store
+.DS_Store?
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE specific
+*.sublime-workspace
+*.sublime-project
+
+# Spring Boot DevTools
+spring-boot-devtools.properties
+
+# Test results
+build/reports/
+build/test-results/
+
+# Coverage reports
+build/jacoco/
+
+# Local configuration
+local.properties
+
+# Gradle cache
+gradle/
+!gradle/wrapper/
+
+# Ignore Gradle GUI config
+gradle-app.setting
+
+# Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)
+!gradle/wrapper/gradle-wrapper.jar
+
+# Cache of project
+.gradletasknamecache
+
+# # Workaround for https://youtrack.jetbrains.com/issue/IDEA-116893
+# gradle/wrapper/gradle-wrapper.properties
+
+# IntelliJ
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/gradle.xml
+.idea/dictionaries/
+.idea/libraries/
+.idea/caches/
+.idea/misc.xml
+
+# Eclipse Core
+.project
+
+# NetBeans
+nbproject/private/
+build/
+nbbuild/
+dist/
+nbactions.xml
+nb-configuration.xml
+
+# VS Code
+.vscode/settings.json
+.vscode/tasks.json
+.vscode/launch.json
+.vscode/extensions/
+
+# Local history for IntelliJ
+.idea/localHistory/
+
+# SonarQube
+sonar-project.properties
+
+# Checkstyle
+checkstyle.xml
+
+# SpotBugs
+spotbugsExclude.xml
+
+# PMD
+pmd.xml
+
+# EditorConfig
+.editorconfig
+
+# Prettier
+.prettierrc
+
+# ESLint
+.eslintrc
+
+# Stylelint
+.stylelintrc
+
+# Husky
+husky/
+.husky/
+
+# Lint-staged
+.lintstagedrc
+
+# Commitlint
+commitlint.config.js
+
+# Renovate
+renovate.json
+
+# Dependabot
+dependabot.yml
+
+# Gitpod
+.gitpod.yml
+
+# GitHub Actions
+.github/
+
+# GitLab CI
+.gitlab-ci.yml
+
+# CircleCI
+.circleci/
+
+# Travis CI
+.travis.yml
+
+# Jenkins
+Jenkinsfile
+
+# Heroku
+Procfile
+
+# Docker
+Dockerfile
+.dockerignore
+
+# Kubernetes
+k8s/
+kubernetes/
+
+# Helm
+charts/
+
+# Terraform
+terraform/
+.terraform/
+
+# Ansible
+ansible/
+
+# Vagrant
+Vagrantfile
+.vagrant/
+
+# Packer
+packer/
+
+# Cloud Foundry
+manifest.yml
+
+# Serverless
+serverless.yml
+
+# AWS SAM
+template.yaml
+
+# Azure
+azure-pipelines.yml
+
+# Google Cloud
+cloudbuild.yaml
+
+# Firebase
+firebase.json
+.firestore.rules
+
+# Android
+local.properties
+*.apk
+*.ap_
+*.aab
+
+# iOS
+*.ipa
+*.xcarchive
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# macOS
+*.DS_Store
+.AppleDouble
+.LSOverride
+
+# Linux
+*nix
+
+# Unix
+*~
