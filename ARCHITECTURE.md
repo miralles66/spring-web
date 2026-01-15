@@ -1,94 +1,78 @@
-# Clean Architecture Structure - Repository-Domain-Presentation Pattern
+# Clean Architecture Implementation
 
-This Spring Boot application follows a clean architecture approach with clear separation of concerns using the Repository-Domain-Presentation pattern.
+## 🎯 Overview
 
-## Folder Structure
+This project implements **Clean Architecture** principles with Spring Boot, separating concerns into distinct layers for better maintainability and testability.
+
+## 📦 Layer Structure
 
 ```
-src/main/java/com/miralles/spring_web/
-├── application/              # Application Layer (Use Cases)
-│   ├── ports/                # Interfaces (Ports)
-│   │   └── UserService.java  # Application service interface
-│   └── services/             # Service Implementations
-│       └── UserServiceImpl.java
-├── domain/                   # Domain Layer (Core Business Logic)
-│   ├── models/               # Domain Models/Entities
-│   │   └── User.java         # Domain model
-│   └── repositories/         # Repository Interfaces (Ports)
-│       └── UserRepository.java
-├── infrastructure/           # Infrastructure Layer (Adapters)
-│   ├── adapters/             # External service adapters
-│   ├── config/               # Configuration classes
-│   │   └── AppConfig.java    # Application configuration
-│   └── persistence/          # Data persistence implementations
-│       └── JpaUserRepository.java
-└── presentation/             # Presentation Layer (UI/API)
-    ├── controllers/          # REST Controllers
-    │   └── UserController.java
-    └── dtos/                 # Data Transfer Objects
-        ├── UserMapper.java   # DTO to Domain model mapper
-        ├── UserRequestDTO.java
-        └── UserResponseDTO.java
+Presentation Layer → Application Layer → Domain Layer → Infrastructure Layer
 ```
 
-## Architecture Layers
+### 1. Presentation Layer
+**Controllers, DTOs, API Endpoints**
+- Handles HTTP requests/responses
+- Validates input using `@Valid`
+- Maps between DTOs and domain models
 
-### 1. Domain Layer (Core)
-- Contains the core business logic and entities
-- Defines repository interfaces (ports)
-- Independent of frameworks and external concerns
-- **Key Principle**: This layer should not depend on any other layer
-
-### 2. Application Layer (Use Cases)
+### 2. Application Layer
+**Services, Use Cases, Business Logic**
 - Contains application-specific business rules
-- Orchestrates the flow of data between domain and infrastructure
-- Defines service interfaces (ports)
-- **Key Principle**: Depends only on the domain layer
+- Orchestrates domain objects
+- Implements use cases
 
-### 3. Infrastructure Layer (Adapters)
-- Implements the interfaces defined in domain and application layers
-- Contains database implementations, external service integrations
-- **Key Principle**: Depends on domain and application layers
+### 3. Domain Layer
+**Models, Factories, Repositories (Interfaces)**
+- Core business logic and entities
+- Pure Java - no framework dependencies
+- Defines repository interfaces
 
-### 4. Presentation Layer (Interface)
-- Handles HTTP requests and responses
-- Contains REST controllers and DTOs
-- **Key Principle**: Depends on application layer, converts between DTOs and domain models
+### 4. Infrastructure Layer
+**Database, Security, External Services**
+- Implements repository interfaces
+- Handles persistence (JPA, etc.)
+- Configures security, logging, etc.
 
-## Dependency Flow
+## 🔧 Key Components
 
+### User Factory Pattern
+```java
+// Domain Layer Interface
+public interface UserFactory {
+    User createUser(String username, String email);
+    User createAdminUser(String username, String email);
+}
+
+// Infrastructure Layer Implementation
+@Service
+public class DefaultUserFactory implements UserFactory {
+    // Concrete implementation
+}
 ```
-Presentation Layer → Application Layer → Domain Layer
-                        ↑
-                   Infrastructure Layer
+
+### Dependency Flow
+```
+Presentation → Application → Domain ← Infrastructure
 ```
 
-## Key Benefits
+## ✅ Benefits
 
-1. **Separation of Concerns**: Each layer has a single responsibility
-2. **Testability**: Easy to test each layer in isolation
-3. **Maintainability**: Changes in one layer don't affect others
-4. **Flexibility**: Easy to swap implementations (e.g., change database)
-5. **Framework Independence**: Domain logic is not tied to Spring or any framework
+- **Testability**: Easy to mock dependencies
+- **Maintainability**: Clear separation of concerns
+- **Flexibility**: Easy to swap implementations
+- **Framework Independence**: Domain layer has no Spring dependencies
 
-## Example Flow
+## 🛠️ Implementation Tips
 
-1. **HTTP Request** → UserController (Presentation)
-2. **Controller** → UserService (Application)
-3. **Service** → UserRepository (Domain Interface)
-4. **Repository Implementation** → JpaUserRepository (Infrastructure)
-5. **Data Flow Back** → Response DTO → HTTP Response
+1. **Dependency Rule**: Inner layers don't know about outer layers
+2. **Interface Segregation**: Keep interfaces focused
+3. **Single Responsibility**: Each class has one clear purpose
+4. **Open/Closed Principle**: Extend behavior without modifying existing code
 
-## Testing Strategy
+## 📚 Related
 
-- **Unit Tests**: Test individual components in isolation using mocks
-- **Integration Tests**: Test layer interactions
-- **Controller Tests**: Test API endpoints with MockMvc
+- [Clean Architecture by Robert C. Martin](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html)
+- [Spring Boot Documentation](https://spring.io/projects/spring-boot)
 
-## Best Practices
-
-- Keep domain models simple and focused on business logic
-- Use DTOs for API contracts, don't expose domain models directly
-- Follow Dependency Inversion Principle (DIP)
-- Keep controllers thin, move business logic to services
-- Use interfaces for all external dependencies
+**Clean Architecture = Maintainable & Testable Code** 🚀

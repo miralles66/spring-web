@@ -49,12 +49,9 @@ app.jwt.expiration=86400000  # 24 hours in milliseconds
 ```properties
 # Public endpoints (no authentication required)
 /api/auth/**
-/swagger-ui/**
-/v3/api-docs/**
 
 # Admin-only endpoints
 /api/users/**
-/actuator/**
 
 # All other endpoints require authentication
 /**
@@ -103,8 +100,8 @@ POST /api/auth/login
 Content-Type: application/json
 
 {
-    "email": "user@example.com",
-    "password": "securePassword123!"
+    "email": "admin@example.com",
+    "password": "admin123"
 }
 ```
 
@@ -114,200 +111,3 @@ Content-Type: application/json
     "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
 }
 ```
-
-#### Health Check
-```http
-POST /api/auth/health
-```
-
-**Response:**
-```json
-"Auth service is healthy"
-```
-
-### Protected Endpoints
-
-All endpoints under `/api/users/**` require:
-- Valid JWT token in `Authorization: Bearer <token>` header
-- User with `ADMIN` role
-
-Example:
-```http
-GET /api/users
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-```
-
-## 🔐 Security Best Practices
-
-### 1. **Password Management**
-- Always use strong, randomly generated passwords
-- Never store plain text passwords
-- Use BCrypt or other secure hashing algorithms
-- Enforce password complexity requirements
-
-### 2. **JWT Security**
-- Use strong, random secrets for JWT signing
-- Set appropriate token expiration times
-- Store tokens securely on the client side
-- Implement token refresh mechanisms for long sessions
-
-### 3. **API Security**
-- Always use HTTPS in production
-- Implement proper CORS configuration
-- Use security headers (CSP, XSS protection, etc.)
-- Rate limit authentication endpoints
-
-### 4. **Admin Security**
-- Change the default admin password immediately
-- Use strong passwords for admin accounts
-- Limit admin access to trusted networks
-- Implement multi-factor authentication for admins
-
-## 🛠 Customization
-
-### Changing Admin Credentials
-
-To change the default admin credentials, modify `application.properties`:
-
-```properties
-app.admin.username=newAdminUsername
-app.admin.email=newAdminEmail@example.com
-```
-
-### Adding Custom Roles
-
-To add custom roles, extend the `CustomUserDetailsService`:
-
-```java
-private Collection<? extends GrantedAuthority> getAuthorities(User user) {
-    List<GrantedAuthority> authorities = new ArrayList<>();
-    
-    // Add roles based on your business logic
-    if (user.hasRole("ADMIN")) {
-        authorities.add(() -> "ROLE_ADMIN");
-    }
-    if (user.hasRole("MANAGER")) {
-        authorities.add(() -> "ROLE_MANAGER");
-    }
-    authorities.add(() -> "ROLE_USER"); // All users have USER role
-    
-    return authorities;
-}
-```
-
-### Customizing Security Configuration
-
-Modify `SecurityConfig.java` to change security rules:
-
-```java
-@Bean
-public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-    http
-        .authorizeHttpRequests(auth -> auth
-            .requestMatchers("/api/public/**").permitAll()
-            .requestMatchers("/api/admin/**").hasRole("ADMIN")
-            .requestMatchers("/api/manager/**").hasAnyRole("ADMIN", "MANAGER")
-            .anyRequest().authenticated()
-        )
-        // ... other configuration
-    
-    return http.build();
-}
-```
-
-## 🧪 Testing Security
-
-### Testing Authentication
-
-```java
-@Test
-void testLoginWithValidCredentials() {
-    AuthRequestDTO request = new AuthRequestDTO("admin@example.com", "admin123");
-    
-    ResponseEntity<AuthResponseDTO> response = restTemplate.postForEntity(
-        "/api/auth/login", 
-        request, 
-        AuthResponseDTO.class
-    );
-    
-    assertEquals(HttpStatus.OK, response.getStatusCode());
-    assertNotNull(response.getBody().token());
-}
-```
-
-### Testing Protected Endpoints
-
-```java
-@Test
-void testProtectedEndpointRequiresAuthentication() {
-    HttpHeaders headers = new HttpHeaders();
-    headers.set("Authorization", "Bearer " + getValidToken());
-    
-    HttpEntity<String> entity = new HttpEntity<>(headers);
-    
-    ResponseEntity<String> response = restTemplate.exchange(
-        "/api/users", 
-        HttpMethod.GET, 
-        entity, 
-        String.class
-    );
-    
-    assertEquals(HttpStatus.OK, response.getStatusCode());
-}
-```
-
-## ⚠️ Production Considerations
-
-### 1. **Environment Variables**
-Use environment variables for sensitive configuration:
-
-```bash
-export JWT_SECRET=yourVerySecureSecretKeyHere
-export ADMIN_PASSWORD=secureAdminPassword123!
-```
-
-### 2. **HTTPS Configuration**
-Always use HTTPS in production:
-
-```properties
-server.ssl.enabled=true
-server.ssl.key-store=classpath:keystore.p12
-server.ssl.key-store-password=yourPassword
-server.ssl.key-store-type=PKCS12
-```
-
-### 3. **Database Security**
-- Use strong database credentials
-- Implement proper database permissions
-- Use connection pooling with SSL
-
-### 4. **Monitoring and Logging**
-- Implement security event logging
-- Monitor failed login attempts
-- Set up alerts for suspicious activity
-
-### 5. **Regular Updates**
-- Keep dependencies updated
-- Regularly update Spring Security
-- Monitor for security vulnerabilities
-
-## 🔗 Related Documentation
-
-- [Spring Security Documentation](https://docs.spring.io/spring-security/reference/)
-- [JWT.io](https://jwt.io/)
-- [OWASP Security Guidelines](https://owasp.org/)
-- [Spring Boot Security Guide](https://spring.io/guides/gs/securing-web/)
-
-## ✅ Security Checklist
-
-- [ ] JWT secret is strong and secure
-- [ ] Passwords are properly hashed
-- [ ] HTTPS is enabled in production
-- [ ] Default admin password has been changed
-- [ ] Security headers are configured
-- [ ] CORS is properly configured
-- [ ] Rate limiting is implemented for auth endpoints
-- [ ] Monitoring and logging are in place
-- [ ] Regular security audits are performed
-
-The security implementation provides a solid foundation for building secure Spring Boot applications with JWT authentication and role-based authorization.
