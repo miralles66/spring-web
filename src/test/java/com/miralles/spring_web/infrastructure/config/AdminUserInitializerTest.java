@@ -1,5 +1,6 @@
 package com.miralles.spring_web.infrastructure.config;
 
+import com.miralles.spring_web.domain.factories.UserFactory;
 import com.miralles.spring_web.domain.models.User;
 import com.miralles.spring_web.domain.repositories.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,6 +30,9 @@ class AdminUserInitializerTest {
     @Mock
     private AdminProperties adminProperties;
 
+    @Mock
+    private UserFactory userFactory;
+
     @InjectMocks
     private AdminUserInitializer adminUserInitializer;
 
@@ -38,6 +42,16 @@ class AdminUserInitializerTest {
         lenient().when(adminProperties.isEnabled()).thenReturn(true);
         lenient().when(adminProperties.getUsername()).thenReturn("admin");
         lenient().when(adminProperties.getEmail()).thenReturn("admin@example.com");
+
+        // Mock user factory to return a user when createAdminUser is called
+        lenient().when(userFactory.createAdminUser(anyString(), anyString())).thenAnswer(invocation -> {
+            String username = invocation.getArgument(0);
+            String email = invocation.getArgument(1);
+            User user = new User();
+            user.setUsername(username);
+            user.setEmail(email);
+            return user;
+        });
     }
 
     @Test
@@ -89,36 +103,36 @@ class AdminUserInitializerTest {
     }
 
     @Test
-    void initializeAdminUser_shouldCreateUserWithCorrectCredentials() throws Exception {
+    void initializeAdminUser_shouldCreateUserWithCredentialsFromProperties() throws Exception {
+        // Setup - configure mocks
         when(userRepository.findByEmail(anyString())).thenReturn(Optional.empty());
+        
+        // Capture the admin properties values (whatever they are configured to be)
+        String expectedUsername = adminProperties.getUsername();
+        String expectedEmail = adminProperties.getEmail();
+        
         when(userRepository.save(any(User.class))).thenAnswer(invocation -> {
             User user = invocation.getArgument(0);
-            // Capture the user that was passed to save
-            assertEquals("admin", user.getUsername());
-            assertEquals("admin@example.com", user.getEmail());
+            // Verify the user was created with credentials from AdminProperties
+            assertEquals(expectedUsername, user.getUsername(), 
+                "Username should match AdminProperties configuration");
+            assertEquals(expectedEmail, user.getEmail(), 
+                "Email should match AdminProperties configuration");
             user.setId(1L);
             return user;
         });
 
+        // Execute
         adminUserInitializer.run(applicationArguments);
 
+        // Verify
         verify(userRepository, times(1)).save(any(User.class));
-    }
-
-    @Test
-    void initializeAdminUser_shouldUseRepositoryCorrectly() throws Exception {
-        User existingAdmin = new User(1L, "admin", "admin@example.com");
-        when(userRepository.findByEmail("admin@example.com")).thenReturn(Optional.of(existingAdmin));
-
-        adminUserInitializer.run(applicationArguments);
-
-        // Verify the correct email was used to search
-        verify(userRepository, times(1)).findByEmail("admin@example.com");
-        verify(userRepository, never()).save(any(User.class));
+        verify(userRepository, times(1)).findByEmail(expectedEmail);
     }
 
     @Test
     void run_shouldExecuteWithoutApplicationArguments() throws Exception {
+        // Setup mocks
         when(userRepository.findByEmail(anyString())).thenReturn(Optional.empty());
         when(userRepository.save(any(User.class))).thenAnswer(invocation -> {
             User user = invocation.getArgument(0);
@@ -126,30 +140,14 @@ class AdminUserInitializerTest {
             return user;
         });
 
+        // Get the expected email from AdminProperties (not hardcoded)
+        String expectedEmail = adminProperties.getEmail();
+
         // Should work even without specific application arguments
         assertDoesNotThrow(() -> adminUserInitializer.run(applicationArguments));
 
-        verify(userRepository, times(1)).findByEmail("admin@example.com");
-        verify(userRepository, times(1)).save(any(User.class));
-    }
-
-    @Test
-    void adminUserCredentials_shouldBeConstant() {
-        // Verify that the admin credentials are defined as constants
-        // This is important for security and maintainability
-        
-        // We can't directly test private constants, but we can verify behavior
-        when(userRepository.findByEmail("admin@example.com")).thenReturn(Optional.empty());
-        when(userRepository.save(any(User.class))).thenAnswer(invocation -> {
-            User user = invocation.getArgument(0);
-            user.setId(1L);
-            return user;
-        });
-
-        assertDoesNotThrow(() -> adminUserInitializer.run(applicationArguments));
-
-        // The initializer should always use the same credentials
-        verify(userRepository, times(1)).findByEmail("admin@example.com");
+        // Verify using the email from properties, not hardcoded value
+        verify(userRepository, times(1)).findByEmail(expectedEmail);
         verify(userRepository, times(1)).save(any(User.class));
     }
 

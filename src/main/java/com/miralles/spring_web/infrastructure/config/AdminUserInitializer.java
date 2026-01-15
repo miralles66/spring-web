@@ -1,5 +1,6 @@
 package com.miralles.spring_web.infrastructure.config;
 
+import com.miralles.spring_web.domain.factories.UserFactory;
 import com.miralles.spring_web.domain.models.User;
 import com.miralles.spring_web.domain.repositories.UserRepository;
 import org.springframework.boot.ApplicationArguments;
@@ -11,16 +12,21 @@ import java.util.Optional;
 /**
  * Initializes an admin user if one doesn't exist when the application starts.
  * This component runs after the Spring context is fully initialized.
+ * 
+ * This implementation follows the Open/Closed Principle by using a UserFactory
+ * to create user objects, making it easy to extend user creation logic.
  */
 @Component
 public class AdminUserInitializer implements ApplicationRunner {
 
     private final UserRepository userRepository;
     private final AdminProperties adminProperties;
+    private final UserFactory userFactory;
 
-    public AdminUserInitializer(UserRepository userRepository, AdminProperties adminProperties) {
+    public AdminUserInitializer(UserRepository userRepository, AdminProperties adminProperties, UserFactory userFactory) {
         this.userRepository = userRepository;
         this.adminProperties = adminProperties;
+        this.userFactory = userFactory;
     }
 
     @Override
@@ -45,9 +51,8 @@ public class AdminUserInitializer implements ApplicationRunner {
             Optional<User> existingAdmin = userRepository.findByEmail(adminEmail);
 
             if (existingAdmin.isEmpty()) {
-                User adminUser = new User();
-                adminUser.setUsername(adminUsername);
-                adminUser.setEmail(adminEmail);
+                // Use factory to create admin user - follows Open/Closed Principle
+                User adminUser = userFactory.createAdminUser(adminUsername, adminEmail);
                 
                 // In a real application, you would:
                 // 1. Hash the password before saving
@@ -71,9 +76,8 @@ public class AdminUserInitializer implements ApplicationRunner {
      * This shows how you might extend the functionality.
      */
     private User createAdminUserWithDetails() {
-        User adminUser = new User();
-        adminUser.setUsername(adminProperties.getUsername());
-        adminUser.setEmail(adminProperties.getEmail());
+        // Use factory to create admin user with details
+        User adminUser = userFactory.createAdminUser(adminProperties.getUsername(), adminProperties.getEmail());
         
         // In a real application, you might add:
         // adminUser.setRoles(List.of("ADMIN", "SUPER_USER"));
