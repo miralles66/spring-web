@@ -5,6 +5,7 @@ import com.miralles.spring_web.domain.models.User;
 import com.miralles.spring_web.domain.repositories.UserRepository;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
@@ -22,11 +23,14 @@ public class AdminUserInitializer implements ApplicationRunner {
     private final UserRepository userRepository;
     private final AdminProperties adminProperties;
     private final UserFactory userFactory;
+    private final PasswordEncoder passwordEncoder;
 
-    public AdminUserInitializer(UserRepository userRepository, AdminProperties adminProperties, UserFactory userFactory) {
+    public AdminUserInitializer(UserRepository userRepository, AdminProperties adminProperties, UserFactory userFactory,
+            PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.adminProperties = adminProperties;
         this.userFactory = userFactory;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -54,14 +58,23 @@ public class AdminUserInitializer implements ApplicationRunner {
                 // Use factory to create admin user - follows Open/Closed Principle
                 User adminUser = userFactory.createAdminUser(adminUsername, adminEmail);
                 
+                // Set a default password for the admin user
                 // In a real application, you would:
-                // 1. Hash the password before saving
-                // 2. Set additional admin-specific fields
-                // 3. Assign admin role/permissions
+                // 1. Generate a secure random password
+                // 2. Hash the password before saving
+                // 3. Set additional admin-specific fields
+                // 4. Assign admin role/permissions
+                // 5. Send the password to the admin via secure email
+
+                String defaultPassword = "admin123"; // TODO: In production, use a secure random password
+                adminUser.setPassword(passwordEncoder.encode(defaultPassword));
+                adminUser.setAdmin(true); // Set admin flag
                 
                 userRepository.save(adminUser);
                 
                 System.out.println("🔐 Admin user created: " + adminUsername + " (" + adminEmail + ")");
+                System.out.println("⚠️  Default password set to: " + defaultPassword);
+                System.out.println("⚠️  Please change this password immediately!");
             } else {
                 System.out.println("🔐 Admin user already exists: " + existingAdmin.get().getUsername());
             }
@@ -69,22 +82,5 @@ public class AdminUserInitializer implements ApplicationRunner {
             System.err.println("⚠️  Failed to initialize admin user: " + e.getMessage());
             // Continue application startup even if admin initialization fails
         }
-    }
-
-    /**
-     * Alternative method that could be used to create admin user with more details.
-     * This shows how you might extend the functionality.
-     */
-    private User createAdminUserWithDetails() {
-        // Use factory to create admin user with details
-        User adminUser = userFactory.createAdminUser(adminProperties.getUsername(), adminProperties.getEmail());
-        
-        // In a real application, you might add:
-        // adminUser.setRoles(List.of("ADMIN", "SUPER_USER"));
-        // adminUser.setAccountStatus(AccountStatus.ACTIVE);
-        // adminUser.setCreatedAt(LocalDateTime.now());
-        // adminUser.setLastLogin(LocalDateTime.now());
-        
-        return adminUser;
     }
 }

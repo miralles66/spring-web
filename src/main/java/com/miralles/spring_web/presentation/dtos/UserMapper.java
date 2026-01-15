@@ -8,6 +8,8 @@ public class UserMapper {
         User user = new User();
         user.setUsername(userRequestDTO.getUsername());
         user.setEmail(userRequestDTO.getEmail());
+        user.setPassword(userRequestDTO.getPassword());
+        user.setAdmin(userRequestDTO.isAdmin());
         return user;
     }
 
@@ -22,6 +24,8 @@ public class UserMapper {
     public static User updateUserFromDTO(UserRequestDTO userRequestDTO, User existingUser) {
         existingUser.setUsername(userRequestDTO.getUsername());
         existingUser.setEmail(userRequestDTO.getEmail());
+        existingUser.setPassword(userRequestDTO.getPassword());
+        existingUser.setAdmin(userRequestDTO.isAdmin());
         return existingUser;
     }
 }

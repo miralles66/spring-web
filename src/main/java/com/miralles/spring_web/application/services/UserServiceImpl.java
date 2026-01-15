@@ -3,6 +3,7 @@ package com.miralles.spring_web.application.services;
 import com.miralles.spring_web.application.ports.UserService;
 import com.miralles.spring_web.domain.models.User;
 import com.miralles.spring_web.domain.repositories.UserRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -11,13 +12,19 @@ import java.util.List;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserServiceImpl(UserRepository userRepository) {
+    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
     public User createUser(User user) {
+        // Encode password before saving
+        if (user.getPassword() != null && !user.getPassword().isEmpty()) {
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+        }
         return userRepository.save(user);
     }
 
@@ -37,6 +44,12 @@ public class UserServiceImpl implements UserService {
         User existingUser = getUserById(id);
         existingUser.setUsername(user.getUsername());
         existingUser.setEmail(user.getEmail());
+        
+        // Update password if provided
+        if (user.getPassword() != null && !user.getPassword().isEmpty()) {
+            existingUser.setPassword(passwordEncoder.encode(user.getPassword()));
+        }
+        
         return userRepository.save(existingUser);
     }
 

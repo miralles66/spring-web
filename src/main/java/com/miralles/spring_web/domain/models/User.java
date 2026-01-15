@@ -6,6 +6,8 @@ public class User {
     private Long id;
     private String username;
     private String email;
+    private String password;
+    private boolean isAdmin = false; // Admin flag - false by default
 
     public User() {
     }
@@ -14,6 +16,21 @@ public class User {
         this.id = id;
         this.username = username;
         this.email = email;
+    }
+
+    public User(Long id, String username, String email, String password) {
+        this.id = id;
+        this.username = username;
+        this.email = email;
+        this.password = password;
+    }
+
+    public User(Long id, String username, String email, String password, boolean isAdmin) {
+        this.id = id;
+        this.username = username;
+        this.email = email;
+        this.password = password;
+        this.isAdmin = isAdmin;
     }
 
     // Getters and Setters
@@ -41,6 +58,22 @@ public class User {
         this.email = email;
     }
 
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public boolean isAdmin() {
+        return isAdmin;
+    }
+
+    public void setAdmin(boolean admin) {
+        isAdmin = admin;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -60,6 +93,7 @@ public class User {
                 "id=" + id +
                 ", username='" + username + '\'' +
                 ", email='" + email + '\'' +
+                ", password='[PROTECTED]'" +
                 '}';
     }
 }

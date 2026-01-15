@@ -15,7 +15,7 @@ public class UserFactoryConfig {
 
     /**
      * Creates a bean for the default UserFactory implementation.
-     * 
+     *
      * @return a new DefaultUserFactory instance
      */
     @Bean
